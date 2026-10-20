@@ -63,6 +63,8 @@ docs/           stable engine API and preserved Python-era documentation
 
 ## Static hosting
 
-Build with `npm run build` and deploy the contents of `dist/` to Vercel, Netlify, GitHub Pages or another static HTTPS host. Relative asset URLs support project subpaths such as GitHub Pages. The production output includes the local `.task` model and WASM bundle. `vercel.json` and `public/_headers` set explicit MIME/cache headers for Vercel and Netlify; for another host, serve `.wasm` as `application/wasm`, serve the task file as binary, and revalidate `sw.js` so offline updates can reach clients. The GitHub Actions workflow runs lint, tests and the static build on pushes and pull requests to `main`.
+Build with `npm run build` and deploy the contents of `dist/` to Vercel, Netlify, GitHub Pages or another static HTTPS host. Relative asset URLs support project subpaths such as GitHub Pages. The production output includes the local `.task` model and WASM bundle. `vercel.json` and `public/_headers` set explicit MIME/cache headers for Vercel and Netlify; for another host, serve `.wasm` as `application/wasm`, serve the task file as binary, and revalidate `sw.js` so offline updates can reach clients. The `Deploy SeaChords to GitHub Pages` workflow runs the quality checks, builds `dist/`, and publishes it automatically after pushes to `main`.
+
+To enable the first GitHub Pages deployment, open the repository's **Settings → Pages**, set **Source** to **GitHub Actions**, and wait for the `Deploy SeaChords to GitHub Pages` workflow to finish. The site will then be available at `https://shivansmh.github.io/SeaChords/`. Future pushes to `main` redeploy it automatically.
 
 The hosted build must serve all app paths from `index.html` if you later add client-side routes. Camera access is not available on insecure non-localhost HTTP.
