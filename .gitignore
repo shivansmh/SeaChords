@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest cache & test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Downloaded models (auto-downloaded by hand_tracker.py on first launch)
+models/*.task
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
