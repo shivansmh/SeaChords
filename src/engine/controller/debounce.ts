@@ -4,8 +4,7 @@ export class OctaveHysteresis {
   private zone = 0;
 
   constructor(
-    private readonly zoneHigh: number = APP_CONFIG.octave.zoneHigh,
-    private readonly zoneLow: number = APP_CONFIG.octave.zoneLow,
+    private readonly zoneBoundary: number = APP_CONFIG.octave.zoneBoundary,
     deadband: number = APP_CONFIG.octave.deadband,
   ) {
     this.halfDeadband = deadband / 2;
@@ -19,12 +18,9 @@ export class OctaveHysteresis {
 
   update(wristY: number): number {
     if (this.zone === 0) {
-      if (wristY < this.zoneHigh - this.halfDeadband) this.zone = 1;
-      else if (wristY > this.zoneLow + this.halfDeadband) this.zone = -1;
-    } else if (this.zone === 1 && wristY > this.zoneHigh + this.halfDeadband) {
-      this.zone = wristY > this.zoneLow + this.halfDeadband ? -1 : 0;
-    } else if (this.zone === -1 && wristY < this.zoneLow - this.halfDeadband) {
-      this.zone = wristY < this.zoneHigh - this.halfDeadband ? 1 : 0;
+      if (wristY < this.zoneBoundary - this.halfDeadband) this.zone = 1;
+    } else if (this.zone === 1 && wristY > this.zoneBoundary + this.halfDeadband) {
+      this.zone = 0;
     }
     return this.zone;
   }
@@ -87,15 +83,12 @@ export class SeaChordsDebouncer {
   private readonly richnessFilter = new StabilityFilter(0);
   private lastBothHandsAt = Number.NEGATIVE_INFINITY;
 
-  constructor(
-    zoneHigh: number = APP_CONFIG.octave.zoneHigh,
-    zoneLow: number = APP_CONFIG.octave.zoneLow,
-  ) {
-    this.octave = new OctaveHysteresis(zoneHigh, zoneLow);
+  constructor(zoneBoundary: number = APP_CONFIG.octave.zoneBoundary) {
+    this.octave = new OctaveHysteresis(zoneBoundary);
   }
 
-  setZones(zoneHigh: number, zoneLow: number): void {
-    this.octave = new OctaveHysteresis(zoneHigh, zoneLow);
+  setZone(zoneBoundary: number): void {
+    this.octave = new OctaveHysteresis(zoneBoundary);
   }
 
   update(raw: RawGestureState, nowMs: number): CommittedGestureState {

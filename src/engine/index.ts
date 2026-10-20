@@ -47,7 +47,7 @@ export interface SeaChordsSnapshot {
   readonly roman: string;
   readonly scaleDegree: number;
   readonly richness: number;
-  readonly octave: -1 | 0 | 1;
+  readonly octave: 0 | 1;
   readonly muted: boolean;
   readonly events: readonly ChordHistoryItem[];
   readonly settings: SeaChordsSettings;
@@ -108,7 +108,7 @@ export class SeaChordsEngine {
   constructor(settings: SeaChordsSettings = loadSettings()) {
     this.settings = settings;
     this.controller = new SeaChordsController(settings.tonic, settings.mode);
-    this.debouncer = new SeaChordsDebouncer(settings.zoneHigh, settings.zoneLow);
+    this.debouncer = new SeaChordsDebouncer(settings.zoneBoundary);
     this.synth.setPreset(settings.synthPreset);
     this.synth.setVolume(settings.volume);
     this.synth.setReverb(settings.reverb);
@@ -119,7 +119,7 @@ export class SeaChordsEngine {
       onFrame: (frame) => this.onCameraFrame(frame),
     });
     this.camera.setSwapHands(settings.swapHands);
-    this.camera.setZones(settings.zoneHigh, settings.zoneLow);
+    this.camera.setZone(settings.zoneBoundary);
     this.state = initialSnapshot(settings, this.synth.midiSupported);
   }
 
@@ -240,12 +240,11 @@ export class SeaChordsEngine {
     this.setState({ settings: this.settings, swapSuggested: false }, true);
   }
 
-  calibrate(zoneHigh: number, zoneLow: number): void {
-    const high = Math.max(0.15, Math.min(zoneHigh, zoneLow - 0.1));
-    const low = Math.min(0.85, Math.max(zoneLow, high + 0.1));
-    this.settings = { ...this.settings, zoneHigh: high, zoneLow: low };
-    this.debouncer.setZones(high, low);
-    this.camera.setZones(high, low);
+  calibrate(zoneBoundary: number): void {
+    const boundary = Math.max(0.15, Math.min(0.85, zoneBoundary));
+    this.settings = { ...this.settings, zoneBoundary: boundary };
+    this.debouncer.setZone(boundary);
+    this.camera.setZone(boundary);
     this.persistSettings();
     this.setState({ settings: this.settings }, true);
   }
@@ -365,11 +364,9 @@ export class SeaChordsEngine {
     const degree = left?.value ?? this.state.scaleDegree;
     const richness = right?.value ?? this.state.richness;
     const rawZone = left
-      ? left.wristY < this.settings.zoneHigh
+      ? left.wristY < this.settings.zoneBoundary
         ? 1
-        : left.wristY > this.settings.zoneLow
-          ? -1
-          : 0
+        : 0
       : this.state.octave;
     const signature = `${degree}:${richness}:${rawZone}:${Boolean(left)}:${Boolean(right)}`;
     if (signature !== this.lastRawSignature) {
@@ -403,7 +400,7 @@ export class SeaChordsEngine {
       droppedFrames: frame.droppedFrames,
       scaleDegree: committed.degree,
       richness: committed.richness,
-      octave: committed.octaveZone as -1 | 0 | 1,
+      octave: committed.octaveZone as 0 | 1,
       muted: !this.controller.isSounding,
       currentChord: current?.chordName ?? null,
       roman: current ? romanNumeral(current) : '—',

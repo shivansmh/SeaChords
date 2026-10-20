@@ -8,7 +8,7 @@ import type { MediaPipeHandLabel } from './handTracker';
 interface InitMessage {
   readonly type: 'init';
   readonly wasmRoot: string;
-  readonly modelBuffer: ArrayBuffer;
+  readonly modelUrl: string;
   readonly minDetectionConfidence: number;
   readonly minHandPresenceConfidence: number;
   readonly minTrackingConfidence: number;
@@ -29,12 +29,12 @@ let initialization: Promise<void> | null = null;
 
 async function createDetector(
   fileset: WasmFileset,
-  modelBuffer: ArrayBuffer,
+  modelUrl: string,
   delegate: 'GPU' | 'CPU',
   message: InitMessage,
 ): Promise<HandLandmarker> {
   return HandLandmarker.createFromOptions(fileset, {
-    baseOptions: { modelAssetBuffer: new Uint8Array(modelBuffer), delegate },
+    baseOptions: { modelAssetPath: modelUrl, delegate },
     runningMode: 'VIDEO',
     numHands: 2,
     minHandDetectionConfidence: message.minDetectionConfidence,
@@ -60,11 +60,11 @@ workerScope.addEventListener('message', (event: MessageEvent<WorkerMessage>) => 
     initialization = (async () => {
       const fileset = await FilesetResolver.forVisionTasks(message.wasmRoot);
       try {
-        detector = await createDetector(fileset, message.modelBuffer, 'GPU', message);
+        detector = await createDetector(fileset, message.modelUrl, 'GPU', message);
         workerScope.postMessage({ type: 'ready', delegate: 'GPU' });
       } catch (gpuError) {
         try {
-          detector = await createDetector(fileset, message.modelBuffer, 'CPU', message);
+          detector = await createDetector(fileset, message.modelUrl, 'CPU', message);
           workerScope.postMessage({
             type: 'ready',
             delegate: 'CPU',

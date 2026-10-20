@@ -31,7 +31,7 @@ npm run build        # typecheck and static production build to dist/
 | **Left**       | 1–5 extended fingers              | Scale degree 1–5                                     |
 | **Left**       | Closed fist                       | Degree 6                                             |
 | **Left**       | Thumb only                        | Degree 7                                             |
-| **Left wrist** | Top / middle / bottom camera zone | +1 / base / −1 octave, with hysteresis               |
+| **Left wrist** | Above / below the octave boundary | +1 / 0 octave, with hysteresis                       |
 | **Right**      | Fist or thumb only                | Mute/release; reopening re-strikes                   |
 | **Right**      | 1–5 extended fingers              | Triad / 7th / 9th / suspended / wide-spread richness |
 

@@ -8,8 +8,7 @@ export interface SeaChordsSettings {
   readonly volume: number;
   readonly reverb: number;
   readonly swapHands: boolean;
-  readonly zoneHigh: number;
-  readonly zoneLow: number;
+  readonly zoneBoundary: number;
   readonly midiEnabled: boolean;
 }
 
@@ -20,8 +19,7 @@ export const DEFAULT_SETTINGS: SeaChordsSettings = {
   volume: 0.25,
   reverb: 0.12,
   swapHands: false,
-  zoneHigh: 0.33,
-  zoneLow: 0.66,
+  zoneBoundary: 0.5,
   midiEnabled: false,
 };
 
@@ -33,7 +31,14 @@ export function loadSettings(): SeaChordsSettings {
   try {
     const parsed = JSON.parse(
       localStorage.getItem(STORAGE_KEY) ?? '{}',
-    ) as Partial<SeaChordsSettings>;
+    ) as Partial<SeaChordsSettings> & {
+      zoneHigh?: unknown;
+      zoneLow?: unknown;
+    };
+    const legacyBoundary =
+      typeof parsed.zoneHigh === 'number' && typeof parsed.zoneLow === 'number'
+        ? (parsed.zoneHigh + parsed.zoneLow) / 2
+        : parsed.zoneHigh;
     return {
       tonic: Number.isInteger(parsed.tonic)
         ? ((parsed.tonic! % 12) + 12) % 12
@@ -47,8 +52,16 @@ export function loadSettings(): SeaChordsSettings {
       volume: clamp(parsed.volume, 0, 1, DEFAULT_SETTINGS.volume),
       reverb: clamp(parsed.reverb, 0, 1, DEFAULT_SETTINGS.reverb),
       swapHands: parsed.swapHands === true,
-      zoneHigh: clamp(parsed.zoneHigh, 0.15, 0.7, DEFAULT_SETTINGS.zoneHigh),
-      zoneLow: clamp(parsed.zoneLow, 0.3, 0.85, DEFAULT_SETTINGS.zoneLow),
+      zoneBoundary: clamp(
+        typeof parsed.zoneBoundary === 'number'
+          ? parsed.zoneBoundary
+          : typeof legacyBoundary === 'number'
+            ? legacyBoundary
+            : undefined,
+        0.15,
+        0.85,
+        DEFAULT_SETTINGS.zoneBoundary,
+      ),
       midiEnabled: parsed.midiEnabled === true,
     };
   } catch {

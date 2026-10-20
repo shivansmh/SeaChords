@@ -15,7 +15,7 @@ export interface UseSeaChordsReturn extends SeaChordsSnapshot {
   readonly setVolume: (volume: number) => void;
   readonly setReverb: (reverb: number) => void;
   readonly swapHands: () => void;
-  readonly calibrate: (zoneHigh: number, zoneLow: number) => void;
+  readonly calibrate: (zoneBoundary: number) => void;
   readonly setKeyboardMode: (enabled: boolean) => void;
   readonly setKeyboardDegree: (degree: number) => void;
   readonly setKeyboardRichness: (richness: number) => void;
@@ -58,7 +58,7 @@ export function useSeaChords(): UseSeaChordsReturn {
   const setReverb = useCallback((reverb: number) => engine.setReverb(reverb), [engine]);
   const swapHands = useCallback(() => engine.swapHands(), [engine]);
   const calibrate = useCallback(
-    (zoneHigh: number, zoneLow: number) => engine.calibrate(zoneHigh, zoneLow),
+    (zoneBoundary: number) => engine.calibrate(zoneBoundary),
     [engine],
   );
   const setKeyboardMode = useCallback(

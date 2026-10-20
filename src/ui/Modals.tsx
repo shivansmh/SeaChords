@@ -54,7 +54,7 @@ export function GesturesModal({ onClose }: { onClose: () => void }) {
             ['1–5 extended fingers', 'Scale degree 1–5'],
             ['Closed fist', 'Degree 6'],
             ['Thumb only', 'Degree 7'],
-            ['Wrist top / middle / bottom', '+1 / base / −1 octave'],
+            ['Wrist above / below boundary', '+1 / 0 octave'],
           ]}
         />
         <Table

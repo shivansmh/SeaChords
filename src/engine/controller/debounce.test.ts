@@ -24,15 +24,12 @@ describe('time-based gesture debounce', () => {
     expect(filter.update('other', 180)).toBe('other');
   });
 
-  it('preserves the 4% octave boundary hysteresis', () => {
-    const zones = new OctaveHysteresis(0.33, 0.66, 0.04);
-    expect(zones.update(0.32)).toBe(0);
-    expect(zones.update(0.3)).toBe(1);
-    expect(zones.update(0.34)).toBe(1);
-    expect(zones.update(0.36)).toBe(0);
-    expect(zones.update(0.69)).toBe(-1);
-    expect(zones.update(0.65)).toBe(-1);
-    expect(zones.update(0.63)).toBe(0);
+  it('preserves 4% hysteresis around the two-zone octave boundary', () => {
+    const zones = new OctaveHysteresis(0.5, 0.04);
+    expect(zones.update(0.49)).toBe(0);
+    expect(zones.update(0.47)).toBe(1);
+    expect(zones.update(0.51)).toBe(1);
+    expect(zones.update(0.53)).toBe(0);
   });
 
   it('keeps the last hand state for the 300ms grace, then marks it absent', () => {

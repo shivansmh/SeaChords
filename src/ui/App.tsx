@@ -103,8 +103,7 @@ export function App() {
   };
   const calibrate = () => {
     const y = sea.leftHand?.wristY;
-    if (y === undefined) sea.calibrate(0.33, 0.66);
-    else sea.calibrate(Math.max(0.15, y - 0.17), Math.min(0.85, y + 0.17));
+    sea.calibrate(y === undefined ? 0.5 : y);
   };
 
   return (

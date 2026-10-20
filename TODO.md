@@ -10,7 +10,7 @@
 ## [ ] Framework-independent musical, gesture and controller engine
 
 - Put all musical rules and controller behavior in pure, unit-tested TypeScript under `src/engine`; keep React/UI out of that folder. `src/engine/README.md` must say: “UI redesign tools must not modify this folder.”
-- Preserve the SOP: left hand chooses scale degree 1–7 and octave zone (top +1, middle base, bottom -1) with 4% hysteresis; right hand chooses richness (triad, 7th, 9th, sus, wide spread); right fist mutes and reopening re-strikes; every played pitch is diatonic.
+- Preserve the musical behavior with the requested two-zone override: left hand chooses scale degree 1–7 and octave zone (above the boundary +1, below the boundary 0) with 4% hysteresis; right hand chooses richness (triad, 7th, 9th, sus, wide spread); right fist mutes and reopening re-strikes; every played pitch is diatonic.
 - Port chord stacking, all existing major/natural-minor chord behaviors, flat-9 avoid-note fallback, diatonic sus4/sus2 selection, spread voicing, MIDI 21–108 clamping, time-based debounce, hand-loss grace, and controller retrigger/mute rules faithfully from the Python implementation and SOP.
 - Keep a stable public `useSeaChords()` interface exposing `{ status, fps, latencyMs, leftHand, rightHand, currentChord, scaleDegree, richness, octave, muted, events, settings }` and actions `start()`, `stop()`, `panic()`, `setKey()`, `setMode()`, `setSynthPreset()`, `setVolume()`, `swapHands()`, `calibrate()`; document it in `docs/ENGINE_API.md`.
 
@@ -36,9 +36,9 @@
 
 - Offer all 12 keys and modes Major, Natural Minor, Dorian and Mixolydian, preserving the in-key avoid-note rules.
 - Show current chord name and Roman numeral, plus the last 8 chords played.
-- Provide a toggleable H-key gesture cheat sheet, draggable octave-zone calibration lines saved in localStorage, and keyboard/mouse fallback with number keys 1–7 plus a richness slider.
+- Provide a toggleable H-key gesture cheat sheet, an octave-boundary calibration saved in localStorage, and keyboard/mouse fallback with number keys 1–7 plus a richness slider.
 - Record played chords with timestamps and export a `.mid` file.
-- Persist key, mode, synth preset, volume, swap-hands and zone lines in localStorage.
+- Persist key, mode, synth preset, volume, swap-hands and the octave boundary in localStorage.
 - Gracefully explain camera permission denial, no camera, WebGL unavailable, model-load failure and unsupported browsers; do not leave a blank screen. Show model loading progress.
 
 ## [ ] Tests, docs, quality gates and deployment readiness

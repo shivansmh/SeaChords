@@ -110,10 +110,9 @@ export class HandTrackerRuntime {
     const assets = localVisionAssets();
     this.modelUrl = assets.modelUrl;
     this.wasmRoot = assets.wasmRoot;
-    this.model = await downloadModel(this.modelUrl, this.callbacks.onProgress);
     this.callbacks.onProgress({
-      progress: 0.58,
-      message: 'Preparing local vision runtime…',
+      progress: 0.12,
+      message: 'Preparing the local vision worker…',
     });
 
     try {
@@ -123,9 +122,10 @@ export class HandTrackerRuntime {
       this.worker?.terminate();
       this.worker = null;
       this.callbacks.onProgress({
-        progress: 0.68,
-        message: 'Starting compatible CPU vision runtime…',
+        progress: 0.35,
+        message: 'Worker unavailable; loading the local CPU fallback…',
       });
+      this.model = await downloadModel(this.modelUrl, this.callbacks.onProgress);
       const delegate = await this.initializeMainThread();
       this.callbacks.onDelegate(
         delegate,
@@ -219,18 +219,14 @@ export class HandTrackerRuntime {
             }
           }
         };
-        const modelCopy = this.model!.slice().buffer;
-        worker.postMessage(
-          {
-            type: 'init',
-            wasmRoot: this.wasmRoot,
-            modelBuffer: modelCopy,
-            minDetectionConfidence: 0.6,
-            minHandPresenceConfidence: 0.6,
-            minTrackingConfidence: 0.6,
-          },
-          [modelCopy],
-        );
+        worker.postMessage({
+          type: 'init',
+          wasmRoot: this.wasmRoot,
+          modelUrl: this.modelUrl,
+          minDetectionConfidence: 0.6,
+          minHandPresenceConfidence: 0.6,
+          minTrackingConfidence: 0.6,
+        });
       } catch (error) {
         reject(error instanceof Error ? error : new Error(String(error)));
       }
@@ -238,7 +234,7 @@ export class HandTrackerRuntime {
   }
 
   private async initializeMainThread(): Promise<'GPU' | 'CPU'> {
-    if (!this.model) throw new Error('The local hand model has not loaded.');
+    this.model ??= await downloadModel(this.modelUrl, this.callbacks.onProgress);
     const { FilesetResolver, HandLandmarker } = await import('@mediapipe/tasks-vision');
     const fileset = await FilesetResolver.forVisionTasks(this.wasmRoot);
     try {

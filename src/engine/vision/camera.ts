@@ -68,8 +68,7 @@ export class SeaChordsCamera {
   private lastVideoTime = -1;
   private cameraFps = 0;
   private swapHands = false;
-  private zoneHigh: number = APP_CONFIG.octave.zoneHigh;
-  private zoneLow: number = APP_CONFIG.octave.zoneLow;
+  private zoneBoundary: number = APP_CONFIG.octave.zoneBoundary;
   private callbacks: CameraCallbacks;
 
   constructor(callbacks: CameraCallbacks) {
@@ -80,9 +79,8 @@ export class SeaChordsCamera {
     this.swapHands = swap;
   }
 
-  setZones(high: number, low: number): void {
-    this.zoneHigh = Math.max(0.15, Math.min(high, low - 0.1));
-    this.zoneLow = Math.min(0.85, Math.max(low, high + 0.1));
+  setZone(boundary: number): void {
+    this.zoneBoundary = Math.max(0.15, Math.min(0.85, boundary));
   }
 
   async start(video: HTMLVideoElement, canvas: HTMLCanvasElement): Promise<void> {
@@ -284,13 +282,11 @@ export class SeaChordsCamera {
     context.strokeStyle = 'rgba(48, 210, 255, 0.75)';
     context.lineWidth = Math.max(2, width / 320);
     context.setLineDash([8, 7]);
-    for (const boundary of [this.zoneHigh, this.zoneLow]) {
-      const y = boundary * height;
-      context.beginPath();
-      context.moveTo(0, y);
-      context.lineTo(width, y);
-      context.stroke();
-    }
+    const y = this.zoneBoundary * height;
+    context.beginPath();
+    context.moveTo(0, y);
+    context.lineTo(width, y);
+    context.stroke();
     context.setLineDash([]);
     this.drawHand(context, hands.left?.landmarks ?? [], '#28d7ff');
     this.drawHand(context, hands.right?.landmarks ?? [], '#d98cff');

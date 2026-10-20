@@ -17,8 +17,7 @@ export const APP_CONFIG = {
     handLostGraceMs: 300,
   },
   octave: {
-    zoneHigh: 0.33,
-    zoneLow: 0.66,
+    zoneBoundary: 0.5,
     deadband: 0.04,
   },
   audio: {
