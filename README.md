@@ -1,128 +1,68 @@
-# SeaChords: Air-Chord Instrument
+# SeaChords — Air-Chord Instrument
 
-SeaChords is a real-time gesture-controlled instrument that turns two-handed webcam gestures into chords. The player **never plays out of key**: a scale is selected once, and every chord produced is strictly diatonic to that scale.
+SeaChords is a two-handed webcam instrument. Finger gestures select a scale degree and chord color; wrist height shifts the octave. The browser creates a diatonic synth chord locally, so no camera frames leave the device.
 
-- **Left Hand**: Chooses **scale degree** (finger count 1–7) and **octave register** (hand height zone: Top `+1`, Mid `Base`, Bottom `-1`).
-- **Right Hand**: Chooses **chord richness** (finger count: Triad, 7th, 9th, Sus, Spread). A closed fist **mutes**.
-- **Output Architecture**: Clean decoupled `OutputBackend` interface (`MidiOutput`, `MockOutput`, `FluidSynthOutput`). Sound source deployment (DAW/virtual MIDI) can be connected at any time.
+**Live demo:** Not published yet. The repository is configured to build a static site for HTTPS hosting.
 
----
+## Run it
 
-## 🚀 Quickstart
-
-### 1. Web Interface (Recommended)
-Launches the full interactive browser dashboard with **live camera tracking, HUD, animated 61-key piano keyboard, real-time MIDI event log, and built-in Web Audio polyphonic synthesizer** (hear chords directly in your browser without needing a DAW):
+Use Node.js 22.13 or newer and npm 10.9.2 (pinned by `packageManager`). From the project directory:
 
 ```bash
-python -m seachords.main --web
+npm install
+npm run dev
 ```
-Then open your browser at **`http://127.0.0.1:8080`**.
 
-### 2. Native OpenCV Desktop Window
-Launches the standard OpenCV desktop HUD window with real-time zone lines, chord banners, and hand skeleton tracking:
+Open `http://localhost:3000`, allow camera access, and start the camera. The hand model and MediaPipe WebAssembly runtime are self-hosted under `public/mediapipe/`; loading them does not depend on a vision CDN. The audio context starts from the camera-start user gesture. Camera use on a deployed site requires HTTPS.
+
+Other useful commands:
 
 ```bash
-python -m seachords.main
+npm test             # Vitest suite
+npm run lint         # ESLint, zero warnings
+npm run typecheck    # strict TypeScript
+npm run build        # typecheck and static production build to dist/
 ```
 
-### 3. Headless / Server Mode
-```bash
-python -m seachords.main --web --headless --port 8080
+## Play
+
+| Hand | Gesture | Result |
+| --- | --- | --- |
+| **Left** | 1–5 extended fingers | Scale degree 1–5 |
+| **Left** | Closed fist | Degree 6 |
+| **Left** | Thumb only | Degree 7 |
+| **Left wrist** | Top / middle / bottom camera zone | +1 / base / −1 octave, with hysteresis |
+| **Right** | Fist or thumb only | Mute/release; reopening re-strikes |
+| **Right** | 1–5 extended fingers | Triad / 7th / 9th / suspended / wide-spread richness |
+
+Select any of the 12 keys and Major, Natural Minor, Dorian, or Mixolydian. All voices stay diatonic to the selected scale. Use `D` for FPS/inference/gesture-to-note/dropped-frame diagnostics, `H` for the gesture guide, `Esc` for panic mute, and `1`–`7` for the keyboard fallback. The settings panel includes Pad, Pluck, Organ and Electric Piano sounds, volume, reverb, optional Web MIDI, octave calibration, chord history and MIDI recording/export.
+
+## Privacy and compatibility
+
+The camera stream is processed locally in the browser. No frame, landmark stream, account, or backend service is sent or required by this static app. Browser permission and camera access remain under the user's control; stopping the camera releases the stream. After the shell/model assets have been cached, the static app can load offline, but camera availability and browser permission still apply.
+
+Chrome and Edge are the recommended targets for initial use. The project has not been verified across every Firefox or Safari release; graphics acceleration, worker/WebAssembly behavior and speed can vary. SeaChords attempts the GPU vision delegate and falls back to CPU. Web MIDI is optional and is only shown when the browser exposes the Web MIDI API.
+
+## Project structure
+
+```text
+src/
+  engine/       music, gestures, debounce, controller, audio, MIDI, camera and vision
+  hooks/        useSeaChords() adapter for UI state/actions
+  ui/           React instrument console and styles
+  config.ts     camera, timing, octave and HUD constants
+public/
+  mediapipe/    local hand-landmarker model and copied WASM runtime
+  icons/        app/favicon and install icons
+  manifest.webmanifest, sw.js, manus-routes.json
+scripts/        copy the installed MediaPipe WASM bundle into public/
+docs/           stable engine API and preserved Python-era documentation
 ```
 
----
+`src/engine/README.md` protects the engine boundary for future UI redesigns. See [`docs/ENGINE_API.md`](docs/ENGINE_API.md) for the public interface.
 
-## 🎮 Controls & Gesture Mapping
+## Static hosting
 
-### Left Hand: Scale Degree & Octave
-| Gesture | Scale Degree | Key of C Example |
-| :--- | :--- | :--- |
-| **Index finger only** | Degree 1 (Tonic) | C / Cmaj7 |
-| **Index + Middle** | Degree 2 (Supertonic) | Dm / Dm7 |
-| **Index + Middle + Ring** | Degree 3 (Mediant) | Em / Em7 |
-| **Four fingers (no thumb)** | Degree 4 (Subdominant) | F / Fmaj7 |
-| **Open palm (4 fingers + thumb)** | Degree 5 (Dominant) | G / G7 |
-| **Closed fist (no thumb)** | Degree 6 (Submediant) | Am / Am7 |
-| **Thumb only** | Degree 7 (Leading Tone) | Bdim / Bm7b5 |
+Build with `npm run build` and deploy the contents of `dist/` to Vercel, Netlify, GitHub Pages or another static HTTPS host. Relative asset URLs support project subpaths such as GitHub Pages. The production output includes the local `.task` model and WASM bundle. `vercel.json` and `public/_headers` set explicit MIME/cache headers for Vercel and Netlify; for another host, serve `.wasm` as `application/wasm`, serve the task file as binary, and revalidate `sw.js` so offline updates can reach clients. The GitHub Actions workflow runs lint, tests and the static build on pushes and pull requests to `main`.
 
-**Octave Zones (Wrist Y Height):**
-- **Top Zone** (< 33% height): `+1 Octave` (+12 semitones)
-- **Middle Zone** (33% – 66% height): `Base Register` (Tonic at MIDI 48)
-- **Bottom Zone** (> 66% height): `-1 Octave` (-12 semitones)
-- Includes deadband hysteresis (4%) to prevent boundary flickering.
-
----
-
-### Right Hand: Chord Richness & Muting
-| Gesture | Richness Level | Voicing Quality | Behavior |
-| :--- | :--- | :--- | :--- |
-| **Closed fist or thumb only** | **Level 0** | **MUTE / Release** | Silences sounding notes |
-| **Index finger only** | **Level 1** | Triad | Root, 3rd, 5th |
-| **Two fingers** | **Level 2** | 7th Chord | Diatonic stacked thirds |
-| **Three fingers** | **Level 3** | 9th Chord | Automatic avoid-note rule (flat-9 falls back to 7th) |
-| **Four fingers (no thumb)** | **Level 4** | Suspended | Diatonic `sus4` or `sus2` (checked in scale) |
-| **Open palm (with thumb)** | **Level 5** | Wide Spread Voicing | Sub-bass root with high chord extension |
-
-**Re-strike Feature**: Close right fist to mute, then reopen into any finger count to re-strike the chord.
-
----
-
-## 🎹 Keyboard Hotkeys (OpenCV Window)
-
-- `Q`: Quit application
-- `A` / `D`: Transpose tonic down / up by semitone
-- `M`: Toggle scale mode (Major ↔ Natural Minor)
-- `P`: Panic (silence all notes & send CC 123)
-- `S`: Swap handedness labels if inverted
-
----
-
-## 🛠️ Project Structure
-
-```
-seachords/
-  config.py               # Tunable constants (Section 12 of SOP)
-  main.py                 # Application entry point, main loop, hotkeys
-  music/
-    scales.py             # Major & Natural Minor scales, tonic math
-    chords.py             # Pure diatonic third stacking & avoid-note rules
-    voicing.py            # Octave zone offsets, spread voicings, MIDI 21-108 clamping
-  engine/
-    debounce.py           # Multi-frame stability filter & octave hysteresis
-    controller.py         # State machine & trigger/mute logic (Section 9.3)
-  vision/
-    camera.py             # Capture & horizontal mirror flip (cv2.flip)
-    hand_tracker.py       # MediaPipe HandLandmarker & handedness assignment
-    gesture.py            # Geometry-based finger extension classification
-  output/
-    base.py               # OutputBackend interface (play, stop, panic)
-    midi_out.py           # MIDI backend (virtual port or loopback)
-    mock_out.py           # Mock / event-dispatching backend
-    fluid_out.py          # FluidSynth backend
-  ui/
-    overlay.py            # OpenCV HUD overlay (zone lines, banners, skeletons)
-    web_server.py         # Lightweight HTTP + MJPEG streaming server
-    web/index.html        # Modern browser interface with Web Audio synthesizer
-tests/
-  test_chords.py          # Diatonic chords, avoid-note, sus rules, and clamp tests
-  test_controller.py      # Event table & debounce hysteresis tests
-  test_gesture.py         # Landmark fixtures for all left & right gestures
-```
-
----
-
-## 🧪 Testing
-
-Run the automated test suite:
-```bash
-python -m pytest
-```
-
----
-
-## 🔊 Sound Source Deployment (Later Setup)
-
-The instrument sends MIDI on **Channel 1**. When ready to deploy an external sound source:
-- **Windows**: Install [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html) and create a virtual port named `SeaChords`. Route this port into your DAW (Ableton, FL Studio, Reaper, Logic) or software synthesizer (Vital, Serum, Kontakt).
-- **macOS / Linux**: Mido automatically creates the virtual port `SeaChords`.
-- **Browser Synthesizer**: The included Web Interface (`python -m seachords.main --web`) includes an instant Web Audio synth so you can play immediately before setting up a DAW!
+The hosted build must serve all app paths from `index.html` if you later add client-side routes. Camera access is not available on insecure non-localhost HTTP.

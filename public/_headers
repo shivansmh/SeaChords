@@ -1,0 +1,14 @@
+/mediapipe/wasm/*
+  Content-Type: application/wasm
+  Cache-Control: public, max-age=604800
+
+/mediapipe/hand_landmarker.task
+  Content-Type: application/octet-stream
+  Cache-Control: public, max-age=604800
+
+/sw.js
+  Cache-Control: no-cache
+
+/manifest.webmanifest
+  Content-Type: application/manifest+json
+  Cache-Control: public, max-age=3600

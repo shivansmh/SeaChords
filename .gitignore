@@ -1,23 +1,24 @@
-# Byte-compiled / optimized / DLL files
+# Python legacy migration inputs
 __pycache__/
 *.py[cod]
 *$py.class
-
-# Pytest cache & test artifacts
 .pytest_cache/
 .coverage
 htmlcov/
-
-# Environments
 .venv/
 venv/
 ENV/
 env/
-
-# Downloaded models (auto-downloaded by hand_tracker.py on first launch)
 models/*.task
 
-# IDE and OS files
+# Node and Vite
+node_modules/
+dist/
+coverage/
+public/mediapipe/wasm/
+*.log
+
+# IDE and OS
 .vscode/
 .idea/
 .DS_Store
