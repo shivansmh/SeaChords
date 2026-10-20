@@ -31,12 +31,18 @@ const PRESETS: readonly SynthPreset[] = ['pad', 'pluck', 'organ', 'electric-pian
 export function loadSettings(): SeaChordsSettings {
   if (typeof localStorage === 'undefined') return DEFAULT_SETTINGS;
   try {
-    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '{}') as Partial<SeaChordsSettings>;
+    const parsed = JSON.parse(
+      localStorage.getItem(STORAGE_KEY) ?? '{}',
+    ) as Partial<SeaChordsSettings>;
     return {
-      tonic: Number.isInteger(parsed.tonic) ? ((parsed.tonic! % 12) + 12) % 12 : DEFAULT_SETTINGS.tonic,
-      mode: MODE_OPTIONS.includes(parsed.mode as Mode) ? parsed.mode as Mode : DEFAULT_SETTINGS.mode,
+      tonic: Number.isInteger(parsed.tonic)
+        ? ((parsed.tonic! % 12) + 12) % 12
+        : DEFAULT_SETTINGS.tonic,
+      mode: MODE_OPTIONS.includes(parsed.mode as Mode)
+        ? (parsed.mode as Mode)
+        : DEFAULT_SETTINGS.mode,
       synthPreset: PRESETS.includes(parsed.synthPreset as SynthPreset)
-        ? parsed.synthPreset as SynthPreset
+        ? (parsed.synthPreset as SynthPreset)
         : DEFAULT_SETTINGS.synthPreset,
       volume: clamp(parsed.volume, 0, 1, DEFAULT_SETTINGS.volume),
       reverb: clamp(parsed.reverb, 0, 1, DEFAULT_SETTINGS.reverb),
@@ -59,7 +65,12 @@ export function saveSettings(settings: SeaChordsSettings): void {
   }
 }
 
-function clamp(value: number | undefined, min: number, max: number, fallback: number): number {
+function clamp(
+  value: number | undefined,
+  min: number,
+  max: number,
+  fallback: number,
+): number {
   return typeof value === 'number' && Number.isFinite(value)
     ? Math.max(min, Math.min(max, value))
     : fallback;

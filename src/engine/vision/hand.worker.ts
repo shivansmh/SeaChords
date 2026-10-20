@@ -47,9 +47,8 @@ function serializeResult(result: HandLandmarkerResult) {
   return result.landmarks.map((landmarks, index) => {
     const category = result.handedness[index]?.[0];
     const categoryName = category?.categoryName ?? '';
-    const label: MediaPipeHandLabel = categoryName === 'Left' || categoryName === 'Right'
-      ? categoryName
-      : 'Unknown';
+    const label: MediaPipeHandLabel =
+      categoryName === 'Left' || categoryName === 'Right' ? categoryName : 'Unknown';
     const points: Landmark[] = landmarks.map(({ x, y, z }) => ({ x, y, z }));
     return { label, landmarks: points };
   });
@@ -73,7 +72,11 @@ workerScope.addEventListener('message', (event: MessageEvent<WorkerMessage>) => 
           });
         } catch (cpuError) {
           const reason = cpuError instanceof Error ? cpuError.message : String(cpuError);
-          workerScope.postMessage({ type: 'error', stage: 'initialization', message: reason });
+          workerScope.postMessage({
+            type: 'error',
+            stage: 'initialization',
+            message: reason,
+          });
           throw cpuError;
         }
       }

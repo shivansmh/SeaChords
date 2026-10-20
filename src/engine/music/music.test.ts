@@ -17,8 +17,12 @@ describe('diatonic chord construction', () => {
     const triads = ['Am', 'Bdim', 'C', 'Dm', 'Em', 'F', 'G'];
     const sevenths = ['Am7', 'Bm7b5', 'Cmaj7', 'Dm7', 'Em7', 'Fmaj7', 'G7'];
     for (let degree = 1; degree <= 7; degree += 1) {
-      expect(constructChord(degree, 1, 9, 'natural_minor').chordName).toBe(triads[degree - 1]);
-      expect(constructChord(degree, 2, 9, 'natural_minor').chordName).toBe(sevenths[degree - 1]);
+      expect(constructChord(degree, 1, 9, 'natural_minor').chordName).toBe(
+        triads[degree - 1],
+      );
+      expect(constructChord(degree, 2, 9, 'natural_minor').chordName).toBe(
+        sevenths[degree - 1],
+      );
     }
   });
 
@@ -28,8 +32,9 @@ describe('diatonic chord construction', () => {
       [9, 'natural_minor', [2, 5]],
     ] as const) {
       for (let degree = 1; degree <= 7; degree += 1) {
-        expect(constructChord(degree, 3, tonic, mode).isAvoidNoteFallback)
-          .toBe(new Set<number>(avoidedDegrees).has(degree));
+        expect(constructChord(degree, 3, tonic, mode).isAvoidNoteFallback).toBe(
+          new Set<number>(avoidedDegrees).has(degree),
+        );
       }
     }
   });
@@ -64,7 +69,11 @@ describe('diatonic chord construction', () => {
     expect(buildVoicedNotes(triad, 0, 0)).toEqual([48, 52, 55]);
     expect(buildVoicedNotes(triad, 1, 0)).toEqual([60, 64, 67]);
     expect(buildVoicedNotes(triad, -1, 0)).toEqual([36, 40, 43]);
-    expect(clampChordToRange([0, 4, 7]).every((note) => note >= 21 && note <= 108)).toBe(true);
-    expect(clampChordToRange([105, 109, 112]).every((note) => note >= 21 && note <= 108)).toBe(true);
+    expect(clampChordToRange([0, 4, 7]).every((note) => note >= 21 && note <= 108)).toBe(
+      true,
+    );
+    expect(
+      clampChordToRange([105, 109, 112]).every((note) => note >= 21 && note <= 108),
+    ).toBe(true);
   });
 });

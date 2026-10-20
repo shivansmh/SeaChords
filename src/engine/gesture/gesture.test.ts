@@ -10,11 +10,20 @@ function makeHand(
   pinky: boolean,
   wristX = 0.3,
 ): Landmark[] {
-  const points: Landmark[] = Array.from({ length: 21 }, () => ({ x: wristX, y: 0.5, z: 0 }));
+  const points: Landmark[] = Array.from({ length: 21 }, () => ({
+    x: wristX,
+    y: 0.5,
+    z: 0,
+  }));
   points[0] = { x: wristX, y: 0.5, z: 0 };
   points[9] = { x: wristX, y: 0.35, z: 0 };
   points[17] = { x: wristX + 0.1, y: 0.4, z: 0 };
-  const fingers = [[6, 8, index], [10, 12, middle], [14, 16, ring], [18, 20, pinky]] as const;
+  const fingers = [
+    [6, 8, index],
+    [10, 12, middle],
+    [14, 16, ring],
+    [18, 20, pinky],
+  ] as const;
   for (const [pip, tip, extended] of fingers) {
     points[pip] = { x: wristX, y: 0.4, z: 0 };
     points[tip] = { x: wristX, y: extended ? 0.3 : 0.42, z: 0 };
@@ -37,13 +46,17 @@ const poses = [
 describe('gesture classification', () => {
   it('maps finger configurations to left-hand scale degrees', () => {
     for (const [thumb, index, middle, ring, pinky, degree] of poses) {
-      expect(classifyHand(makeHand(thumb, index, middle, ring, pinky), 'left').value).toBe(degree);
+      expect(
+        classifyHand(makeHand(thumb, index, middle, ring, pinky), 'left').value,
+      ).toBe(degree);
     }
   });
 
   it('maps finger configurations to right-hand richness and mute', () => {
     for (const [thumb, index, middle, ring, pinky, , richness] of poses) {
-      expect(classifyHand(makeHand(thumb, index, middle, ring, pinky), 'right').value).toBe(richness);
+      expect(
+        classifyHand(makeHand(thumb, index, middle, ring, pinky), 'right').value,
+      ).toBe(richness);
     }
   });
 

@@ -31,13 +31,13 @@ SeaChords is a real-time instrument that turns two-handed webcam gestures into c
 
 ## 4. Tech Stack
 
-| Purpose | Library |
-| --- | --- |
-| Camera and overlay | opencv-python |
-| Hand landmarks | mediapipe (pin an exact version) |
-| MIDI out | mido, python-rtmidi |
-| Optional internal synth | pyfluidsynth |
-| Tests | pytest |
+| Purpose                 | Library                          |
+| ----------------------- | -------------------------------- |
+| Camera and overlay      | opencv-python                    |
+| Hand landmarks          | mediapipe (pin an exact version) |
+| MIDI out                | mido, python-rtmidi              |
+| Optional internal synth | pyfluidsynth                     |
+| Tests                   | pytest                           |
 
 MediaPipe settings: max 2 hands, detection and tracking confidence 0.6 (tunable), lightest model complexity that stays accurate. Camera: 640x480 at 30 fps, minimal capture buffer so frames are not stale.
 
@@ -76,15 +76,15 @@ seachords/
 
 ### 6.1 Left hand: degree (finger count)
 
-| Gesture | Scale degree |
-| --- | --- |
-| Fist (no thumb) | 6 |
-| Index only | 1 |
-| Index + middle | 2 |
-| Index + middle + ring | 3 |
-| Four fingers (thumb ignored) | 4 |
-| Open palm (four fingers + thumb) | 5 |
-| Thumb only | 7 |
+| Gesture                          | Scale degree |
+| -------------------------------- | ------------ |
+| Fist (no thumb)                  | 6            |
+| Index only                       | 1            |
+| Index + middle                   | 2            |
+| Index + middle + ring            | 3            |
+| Four fingers (thumb ignored)     | 4            |
+| Open palm (four fingers + thumb) | 5            |
+| Thumb only                       | 7            |
 
 Degree numbering is relative to the tonic, so it is the same gestures in every key (key of C: 1=C, 2=D, 3=E, 4=F, 5=G, 6=A, 7=B).
 
@@ -92,24 +92,24 @@ Degree numbering is relative to the tonic, so it is the same gestures in every k
 
 Two horizontal lines split the frame into three zones using the left wrist Y position.
 
-| Zone | Register |
-| --- | --- |
-| Top | +1 octave |
-| Middle | base |
+| Zone   | Register  |
+| ------ | --------- |
+| Top    | +1 octave |
+| Middle | base      |
 | Bottom | -1 octave |
 
 Default boundaries at 33% and 66% of frame height, with a deadband (hysteresis) so hovering on a line does not flicker.
 
 ### 6.3 Right hand: richness level (finger count)
 
-| Gesture | Level | Chord |
-| --- | --- | --- |
-| Fist or thumb only | 0 | **Mute / release** |
-| Index only | 1 | Triad |
-| Two fingers | 2 | 7th |
-| Three fingers | 3 | 9th (with avoid-note fallback) |
-| Four fingers (no thumb) | 4 | Suspended (sus4 or sus2) |
-| Open palm (with thumb) | 5 | Wide spread voicing |
+| Gesture                 | Level | Chord                          |
+| ----------------------- | ----- | ------------------------------ |
+| Fist or thumb only      | 0     | **Mute / release**             |
+| Index only              | 1     | Triad                          |
+| Two fingers             | 2     | 7th                            |
+| Three fingers           | 3     | 9th (with avoid-note fallback) |
+| Four fingers (no thumb) | 4     | Suspended (sus4 or sus2)       |
+| Open palm (with thumb)  | 5     | Wide spread voicing            |
 
 ### 6.4 No-hand behavior
 
@@ -130,14 +130,14 @@ Build every chord by **stacking diatonic thirds** from the scale. For zero-based
 Expected results to unit test:
 
 | Degree | C major triad / 7th | A natural minor triad / 7th |
-| --- | --- | --- |
-| 1 | C / Cmaj7 | Am / Am7 |
-| 2 | Dm / Dm7 | B dim / Bm7b5 |
-| 3 | Em / Em7 | C / Cmaj7 |
-| 4 | F / Fmaj7 | Dm / Dm7 |
-| 5 | G / G7 | Em / Em7 |
-| 6 | Am / Am7 | F / Fmaj7 |
-| 7 | B dim / Bm7b5 | G / G7 |
+| ------ | ------------------- | --------------------------- |
+| 1      | C / Cmaj7           | Am / Am7                    |
+| 2      | Dm / Dm7            | B dim / Bm7b5               |
+| 3      | Em / Em7            | C / Cmaj7                   |
+| 4      | F / Fmaj7           | Dm / Dm7                    |
+| 5      | G / G7              | Em / Em7                    |
+| 6      | Am / Am7            | F / Fmaj7                   |
+| 7      | B dim / Bm7b5       | G / G7                      |
 
 ### 7.3 Level 3 (9th) and the avoid-note rule
 
@@ -214,14 +214,14 @@ Committed chord state = `(degree, octave_zone, level)` plus the global `(tonic, 
 
 ### 9.3 Events
 
-| Condition | Action |
-| --- | --- |
-| Both hands present, level > 0, and committed state changed | `stop()` then `play(new chord)` |
-| Level goes 0 to >0 (fist opened) | `play(chord)` even if unchanged (re-strike) |
-| Level goes to 0 (fist closed) | `stop()` |
-| Hand lost beyond grace window | `stop()` |
-| Key or mode changed by hotkey | `panic()` then reset state |
-| Octave zone change | Treated as a chord change (retrigger) when `RETRIGGER_ON_OCTAVE` is true |
+| Condition                                                  | Action                                                                   |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Both hands present, level > 0, and committed state changed | `stop()` then `play(new chord)`                                          |
+| Level goes 0 to >0 (fist opened)                           | `play(chord)` even if unchanged (re-strike)                              |
+| Level goes to 0 (fist closed)                              | `stop()`                                                                 |
+| Hand lost beyond grace window                              | `stop()`                                                                 |
+| Key or mode changed by hotkey                              | `panic()` then reset state                                               |
+| Octave zone change                                         | Treated as a chord change (retrigger) when `RETRIGGER_ON_OCTAVE` is true |
 
 Notes ring until the next event; there is no timer-based decay. Optional `STRUM_MS` staggers note-on messages (default 0 = simultaneous).
 
@@ -252,22 +252,22 @@ finally: output.panic()
 
 ## 12. Configuration Parameters
 
-| Name | Default | Meaning |
-| --- | --- | --- |
-| `TONIC` | C (0) | Key root pitch class |
-| `MODE` | major | major or natural minor |
-| `STABLE_FRAMES` | 4 | Frames a gesture must hold to commit |
-| `HAND_LOST_GRACE_MS` | 300 | Dropout tolerance before muting |
+| Name                    | Default    | Meaning                                 |
+| ----------------------- | ---------- | --------------------------------------- |
+| `TONIC`                 | C (0)      | Key root pitch class                    |
+| `MODE`                  | major      | major or natural minor                  |
+| `STABLE_FRAMES`         | 4          | Frames a gesture must hold to commit    |
+| `HAND_LOST_GRACE_MS`    | 300        | Dropout tolerance before muting         |
 | `ZONE_LOW`, `ZONE_HIGH` | 0.66, 0.33 | Frame-height fractions for octave zones |
-| `ZONE_DEADBAND` | 0.04 | Hysteresis around zone lines |
-| `FINGER_EXT_RATIO` | 1.1 | Non-thumb extension sensitivity |
-| `THUMB_EXT_RATIO` | 1.1 | Thumb extension sensitivity |
-| `MIN_PALM_SIZE` | tuned | Reject far or partial hands |
-| `VELOCITY` | 90 | MIDI velocity |
-| `STRUM_MS` | 0 | Note-on stagger |
-| `RETRIGGER_ON_OCTAVE` | true | Octave change re-fires chord |
-| `SWAP_HANDEDNESS` | false | Fix inverted labels |
-| `MIDI_PORT_NAME` | SeaChords | Virtual port name |
+| `ZONE_DEADBAND`         | 0.04       | Hysteresis around zone lines            |
+| `FINGER_EXT_RATIO`      | 1.1        | Non-thumb extension sensitivity         |
+| `THUMB_EXT_RATIO`       | 1.1        | Thumb extension sensitivity             |
+| `MIN_PALM_SIZE`         | tuned      | Reject far or partial hands             |
+| `VELOCITY`              | 90         | MIDI velocity                           |
+| `STRUM_MS`              | 0          | Note-on stagger                         |
+| `RETRIGGER_ON_OCTAVE`   | true       | Octave change re-fires chord            |
+| `SWAP_HANDEDNESS`       | false      | Fix inverted labels                     |
+| `MIDI_PORT_NAME`        | SeaChords  | Virtual port name                       |
 
 ## 13. On-Screen Overlay and Hotkeys
 

@@ -6,23 +6,23 @@ The browser app exposes a single React adapter, `useSeaChords()`, from `src/hook
 
 `useSeaChords()` returns the following stable state fields:
 
-| Field | Meaning |
-| --- | --- |
-| `status` | `idle`, `loading`, `running`, or `error`. |
-| `fps` | Camera frames observed per second, averaged over the most recent half-second window. |
-| `latencyMs` | Estimate from the most recent raw gesture change to the resulting note-on controller action. It is meaningful only after a note event. |
-| `leftHand` / `rightHand` | Readouts for the hands assigned to the mirrored-view LEFT and RIGHT roles, or `null` when unavailable. They contain role, finger count, thumb status, classified value, and normalized wrist Y. These are HUD summaries, not per-frame landmarks. |
-| `currentChord` | Current diatonic chord name, or `null` while muted. |
-| `roman` | Current Roman numeral label, or `—` while muted. |
-| `scaleDegree` | Committed degree, from 1 through 7. |
-| `richness` | Committed right-hand richness, from 0 (mute) through 5 (wide spread). |
-| `octave` | Committed octave zone: `1` (upper), `0` (base), or `-1` (lower). |
-| `muted` | Whether the controller is currently sounding a chord. |
-| `events` | The most recent eight note-on chord events, oldest first; each contains `atMs`, `chordName`, `roman`, and MIDI `notes`. |
-| `settings` | Persisted key/mode/synth/volume/reverb/hand-swap/octave-boundary/MIDI settings. |
-| `inferenceMs`, `droppedFrames` | Vision runtime duration and count of frames skipped while inference was busy. |
-| `delegate`, `workerInference`, `progress`, `message` | Vision backend and lifecycle feedback for setup/error UI. |
-| `recording`, `midiSupported`, `midiDevice`, `swapSuggested`, `keyboardMode` | Optional-feature state used by the supplied UI. |
+| Field                                                                       | Meaning                                                                                                                                                                                                                                           |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `status`                                                                    | `idle`, `loading`, `running`, or `error`.                                                                                                                                                                                                         |
+| `fps`                                                                       | Camera frames observed per second, averaged over the most recent half-second window.                                                                                                                                                              |
+| `latencyMs`                                                                 | Estimate from the most recent raw gesture change to the resulting note-on controller action. It is meaningful only after a note event.                                                                                                            |
+| `leftHand` / `rightHand`                                                    | Readouts for the hands assigned to the mirrored-view LEFT and RIGHT roles, or `null` when unavailable. They contain role, finger count, thumb status, classified value, and normalized wrist Y. These are HUD summaries, not per-frame landmarks. |
+| `currentChord`                                                              | Current diatonic chord name, or `null` while muted.                                                                                                                                                                                               |
+| `roman`                                                                     | Current Roman numeral label, or `—` while muted.                                                                                                                                                                                                  |
+| `scaleDegree`                                                               | Committed degree, from 1 through 7.                                                                                                                                                                                                               |
+| `richness`                                                                  | Committed right-hand richness, from 0 (mute) through 5 (wide spread).                                                                                                                                                                             |
+| `octave`                                                                    | Committed octave zone: `1` (upper), `0` (base), or `-1` (lower).                                                                                                                                                                                  |
+| `muted`                                                                     | Whether the controller is currently sounding a chord.                                                                                                                                                                                             |
+| `events`                                                                    | The most recent eight note-on chord events, oldest first; each contains `atMs`, `chordName`, `roman`, and MIDI `notes`.                                                                                                                           |
+| `settings`                                                                  | Persisted key/mode/synth/volume/reverb/hand-swap/octave-boundary/MIDI settings.                                                                                                                                                                   |
+| `inferenceMs`, `droppedFrames`                                              | Vision runtime duration and count of frames skipped while inference was busy.                                                                                                                                                                     |
+| `delegate`, `workerInference`, `progress`, `message`                        | Vision backend and lifecycle feedback for setup/error UI.                                                                                                                                                                                         |
+| `recording`, `midiSupported`, `midiDevice`, `swapSuggested`, `keyboardMode` | Optional-feature state used by the supplied UI.                                                                                                                                                                                                   |
 
 The per-frame 21-point landmark arrays never enter React state. They move from the video scheduler to the tracker, gesture classifier, and imperative overlay canvas; only summarized HUD snapshots are emitted, with a maximum routine update cadence of 12 Hz. Musical state changes can notify immediately.
 

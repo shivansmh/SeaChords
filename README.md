@@ -26,14 +26,14 @@ npm run build        # typecheck and static production build to dist/
 
 ## Play
 
-| Hand | Gesture | Result |
-| --- | --- | --- |
-| **Left** | 1–5 extended fingers | Scale degree 1–5 |
-| **Left** | Closed fist | Degree 6 |
-| **Left** | Thumb only | Degree 7 |
-| **Left wrist** | Top / middle / bottom camera zone | +1 / base / −1 octave, with hysteresis |
-| **Right** | Fist or thumb only | Mute/release; reopening re-strikes |
-| **Right** | 1–5 extended fingers | Triad / 7th / 9th / suspended / wide-spread richness |
+| Hand           | Gesture                           | Result                                               |
+| -------------- | --------------------------------- | ---------------------------------------------------- |
+| **Left**       | 1–5 extended fingers              | Scale degree 1–5                                     |
+| **Left**       | Closed fist                       | Degree 6                                             |
+| **Left**       | Thumb only                        | Degree 7                                             |
+| **Left wrist** | Top / middle / bottom camera zone | +1 / base / −1 octave, with hysteresis               |
+| **Right**      | Fist or thumb only                | Mute/release; reopening re-strikes                   |
+| **Right**      | 1–5 extended fingers              | Triad / 7th / 9th / suspended / wide-spread richness |
 
 Select any of the 12 keys and Major, Natural Minor, Dorian, or Mixolydian. All voices stay diatonic to the selected scale. Use `D` for FPS/inference/gesture-to-note/dropped-frame diagnostics, `H` for the gesture guide, `Esc` for panic mute, and `1`–`7` for the keyboard fallback. The settings panel includes Pad, Pluck, Organ and Electric Piano sounds, volume, reverb, optional Web MIDI, octave calibration, chord history and MIDI recording/export.
 

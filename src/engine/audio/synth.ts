@@ -73,7 +73,9 @@ export class SeaChordsSynth {
   }
 
   play(notes: readonly number[], timestamp?: number): void {
-    const when = this.context ? Math.max(this.context.currentTime, timestamp ?? this.context.currentTime) : 0;
+    const when = this.context
+      ? Math.max(this.context.currentTime, timestamp ?? this.context.currentTime)
+      : 0;
     this.stop(when);
     this.midi.play(notes);
     if (!this.context || !this.master || this.volume <= 0) return;
@@ -97,7 +99,10 @@ export class SeaChordsSynth {
       if (this.preset === 'pad' || this.preset === 'organ') {
         const layer = context.createOscillator();
         layer.type = this.preset === 'pad' ? 'triangle' : 'sine';
-        layer.frequency.setValueAtTime(frequency * (this.preset === 'pad' ? 1.003 : 2), when);
+        layer.frequency.setValueAtTime(
+          frequency * (this.preset === 'pad' ? 1.003 : 2),
+          when,
+        );
         const layerGain = context.createGain();
         layerGain.gain.value = this.preset === 'pad' ? 0.28 : 0.18;
         layer.connect(layerGain).connect(envelope);
@@ -160,7 +165,11 @@ export class SeaChordsSynth {
     this.wet = wet;
   }
 
-  private createImpulse(context: AudioContext, seconds: number, decay: number): AudioBuffer {
+  private createImpulse(
+    context: AudioContext,
+    seconds: number,
+    decay: number,
+  ): AudioBuffer {
     const length = Math.floor(context.sampleRate * seconds);
     const impulse = context.createBuffer(2, length, context.sampleRate);
     for (let channel = 0; channel < 2; channel += 1) {
@@ -176,7 +185,10 @@ export class SeaChordsSynth {
     const release = this.preset === 'pad' ? 0.18 : 0.12;
     for (const voice of this.voices) {
       voice.envelope.gain.cancelScheduledValues(when);
-      voice.envelope.gain.setValueAtTime(Math.max(voice.envelope.gain.value, 0.0001), when);
+      voice.envelope.gain.setValueAtTime(
+        Math.max(voice.envelope.gain.value, 0.0001),
+        when,
+      );
       voice.envelope.gain.linearRampToValueAtTime(0.0001, when + release);
       for (const oscillator of voice.oscillators) {
         try {

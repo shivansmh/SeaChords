@@ -9,9 +9,23 @@ createRoot(document.getElementById('root')!).render(
   </React.StrictMode>,
 );
 
-if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-  window.addEventListener('load', () => {
-    void navigator.serviceWorker.register(new URL('sw.js', document.baseURI), { scope: new URL('.', document.baseURI).pathname })
-      .catch((error: unknown) => console.warn('SeaChords offline support is unavailable:', error));
-  }, { once: true });
+if (
+  'serviceWorker' in navigator &&
+  (location.protocol === 'https:' ||
+    location.hostname === 'localhost' ||
+    location.hostname === '127.0.0.1')
+) {
+  window.addEventListener(
+    'load',
+    () => {
+      void navigator.serviceWorker
+        .register(new URL('sw.js', document.baseURI), {
+          scope: new URL('.', document.baseURI).pathname,
+        })
+        .catch((error: unknown) =>
+          console.warn('SeaChords offline support is unavailable:', error),
+        );
+    },
+    { once: true },
+  );
 }

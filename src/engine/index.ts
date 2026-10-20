@@ -5,7 +5,12 @@ import { SeaChordsDebouncer } from './controller/debounce';
 import { romanNumeral } from './music/roman';
 import type { Mode } from './music/scales';
 import { downloadMidi, type RecordedChord } from './recording';
-import { DEFAULT_SETTINGS, loadSettings, saveSettings, type SeaChordsSettings } from './settings';
+import {
+  DEFAULT_SETTINGS,
+  loadSettings,
+  saveSettings,
+  type SeaChordsSettings,
+} from './settings';
 import { SeaChordsCamera, type CameraFrameState } from './vision/camera';
 import type { TrackerProgress } from './vision/runtime';
 
@@ -53,7 +58,10 @@ export interface SeaChordsSnapshot {
   readonly keyboardMode: boolean;
 }
 
-function initialSnapshot(settings: SeaChordsSettings, midiSupported: boolean): SeaChordsSnapshot {
+function initialSnapshot(
+  settings: SeaChordsSettings,
+  midiSupported: boolean,
+): SeaChordsSnapshot {
   return {
     status: 'idle',
     message: 'Allow camera to begin.',
@@ -132,19 +140,31 @@ export class SeaChordsEngine {
 
   async start(): Promise<void> {
     if (!this.videoElement || !this.canvasElement) {
-      this.setState({ status: 'error', message: 'The camera surface is not ready. Reload the page and try again.' }, true);
+      this.setState(
+        {
+          status: 'error',
+          message: 'The camera surface is not ready. Reload the page and try again.',
+        },
+        true,
+      );
       return;
     }
-    this.setState({ status: 'loading', progress: 0, message: 'Starting camera and local audio…' }, true);
+    this.setState(
+      { status: 'loading', progress: 0, message: 'Starting camera and local audio…' },
+      true,
+    );
     try {
       await this.synth.unlock();
       await this.camera.start(this.videoElement, this.canvasElement);
     } catch (error) {
-      this.setState({
-        status: 'error',
-        progress: 0,
-        message: error instanceof Error ? error.message : 'SeaChords could not start.',
-      }, true);
+      this.setState(
+        {
+          status: 'error',
+          progress: 0,
+          message: error instanceof Error ? error.message : 'SeaChords could not start.',
+        },
+        true,
+      );
     }
   }
 
@@ -152,15 +172,18 @@ export class SeaChordsEngine {
     this.camera.stop();
     this.controller.panic();
     this.synth.panic();
-    this.setState({
-      status: 'idle',
-      message: 'Camera stopped. Your video remains on this device.',
-      progress: 0,
-      leftHand: null,
-      rightHand: null,
-      muted: true,
-      swapSuggested: false,
-    }, true);
+    this.setState(
+      {
+        status: 'idle',
+        message: 'Camera stopped. Your video remains on this device.',
+        progress: 0,
+        leftHand: null,
+        rightHand: null,
+        muted: true,
+        swapSuggested: false,
+      },
+      true,
+    );
   }
 
   panic(): void {
@@ -241,7 +264,10 @@ export class SeaChordsEngine {
       handsPresent: true,
     };
     this.applyActions(this.controller.step(state));
-    this.setState({ keyboardMode: true, scaleDegree: degree, muted: state.richness === 0 }, true);
+    this.setState(
+      { keyboardMode: true, scaleDegree: degree, muted: state.richness === 0 },
+      true,
+    );
     this.refreshChordSnapshot();
   }
 
@@ -274,7 +300,13 @@ export class SeaChordsEngine {
       this.setState({ settings: this.settings, midiDevice: name }, true);
       return name;
     } catch (error) {
-      this.setState({ message: error instanceof Error ? error.message : 'MIDI access was not granted.' }, true);
+      this.setState(
+        {
+          message:
+            error instanceof Error ? error.message : 'MIDI access was not granted.',
+        },
+        true,
+      );
       return null;
     }
   }
@@ -285,7 +317,13 @@ export class SeaChordsEngine {
   }
 
   stopRecording(download = false): void {
-    this.setState({ recording: false, message: `${this.recordingEvents.length} chord events recorded.` }, true);
+    this.setState(
+      {
+        recording: false,
+        message: `${this.recordingEvents.length} chord events recorded.`,
+      },
+      true,
+    );
     if (download) downloadMidi(this.recordingEvents);
   }
 
@@ -299,7 +337,10 @@ export class SeaChordsEngine {
     this.listeners.clear();
   }
 
-  private onCameraStatus(status: 'loading' | 'running' | 'error' | 'stopped', message?: string): void {
+  private onCameraStatus(
+    status: 'loading' | 'running' | 'error' | 'stopped',
+    message?: string,
+  ): void {
     if (status === 'stopped') return;
     this.setState({ status, ...(message ? { message } : {}) }, true);
   }
@@ -309,11 +350,12 @@ export class SeaChordsEngine {
   }
 
   private onDelegate(delegate: 'GPU' | 'CPU', worker: boolean): void {
-    const message = delegate === 'GPU'
-      ? 'GPU hand tracking is ready.'
-      : worker
-        ? 'GPU is unavailable; using the worker CPU fallback.'
-        : 'Worker setup was unavailable; using the CPU fallback.';
+    const message =
+      delegate === 'GPU'
+        ? 'GPU hand tracking is ready.'
+        : worker
+          ? 'GPU is unavailable; using the worker CPU fallback.'
+          : 'Worker setup was unavailable; using the CPU fallback.';
     this.setState({ delegate, workerInference: worker, message }, true);
   }
 
@@ -323,26 +365,36 @@ export class SeaChordsEngine {
     const degree = left?.value ?? this.state.scaleDegree;
     const richness = right?.value ?? this.state.richness;
     const rawZone = left
-      ? left.wristY < this.settings.zoneHigh ? 1 : left.wristY > this.settings.zoneLow ? -1 : 0
+      ? left.wristY < this.settings.zoneHigh
+        ? 1
+        : left.wristY > this.settings.zoneLow
+          ? -1
+          : 0
       : this.state.octave;
     const signature = `${degree}:${richness}:${rawZone}:${Boolean(left)}:${Boolean(right)}`;
     if (signature !== this.lastRawSignature) {
       this.lastRawSignature = signature;
       this.gestureChangedAt = frame.timestampMs;
     }
-    const committed = this.debouncer.update({
-      degree,
-      wristY: left?.wristY ?? null,
-      richness,
-      leftPresent: left !== null,
-      rightPresent: right !== null,
-    }, frame.timestampMs);
+    const committed = this.debouncer.update(
+      {
+        degree,
+        wristY: left?.wristY ?? null,
+        richness,
+        leftPresent: left !== null,
+        rightPresent: right !== null,
+      },
+      frame.timestampMs,
+    );
     const now = performance.now();
     const actions = this.controller.step(committed, now);
     this.applyActions(actions);
     const current = this.controller.currentChord;
-    const force = actions.length > 0 || committed.degree !== this.state.scaleDegree
-      || committed.richness !== this.state.richness || committed.octaveZone !== this.state.octave;
+    const force =
+      actions.length > 0 ||
+      committed.degree !== this.state.scaleDegree ||
+      committed.richness !== this.state.richness ||
+      committed.octaveZone !== this.state.octave;
     const next: Partial<SeaChordsSnapshot> = {
       leftHand: left ? this.toReadout('left', left) : null,
       rightHand: right ? this.toReadout('right', right) : null,
@@ -360,7 +412,10 @@ export class SeaChordsEngine {
         ? Math.max(0, now - this.gestureChangedAt)
         : this.state.latencyMs,
     };
-    this.setState(next, force || now - this.lastHudUpdateAt >= 1000 / APP_CONFIG.hud.maxUpdatesPerSecond);
+    this.setState(
+      next,
+      force || now - this.lastHudUpdateAt >= 1000 / APP_CONFIG.hud.maxUpdatesPerSecond,
+    );
   }
 
   private applyActions(actions: readonly ControllerAction[]): void {
@@ -379,7 +434,11 @@ export class SeaChordsEngine {
         };
         const events = [...this.state.events, event].slice(-8);
         if (this.state.recording) {
-          this.recordingEvents.push({ atMs: action.atMs, chordName: event.chordName, notes: event.notes });
+          this.recordingEvents.push({
+            atMs: action.atMs,
+            chordName: event.chordName,
+            notes: event.notes,
+          });
         }
         this.setState({ events }, true);
       }
@@ -388,15 +447,21 @@ export class SeaChordsEngine {
 
   private refreshChordSnapshot(): void {
     const chord = this.controller.currentChord;
-    this.setState({
-      currentChord: chord?.chordName ?? null,
-      roman: chord ? romanNumeral(chord) : '—',
-      settings: this.settings,
-      muted: !this.controller.isSounding,
-    }, true);
+    this.setState(
+      {
+        currentChord: chord?.chordName ?? null,
+        roman: chord ? romanNumeral(chord) : '—',
+        settings: this.settings,
+        muted: !this.controller.isSounding,
+      },
+      true,
+    );
   }
 
-  private toReadout(role: 'left' | 'right', hand: NonNullable<CameraFrameState['leftHand']>): HandReadout {
+  private toReadout(
+    role: 'left' | 'right',
+    hand: NonNullable<CameraFrameState['leftHand']>,
+  ): HandReadout {
     return {
       role,
       fingers: hand.nonThumbCount,

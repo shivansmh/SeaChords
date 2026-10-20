@@ -11,7 +11,13 @@ export interface FingerCount {
   readonly wristY: number;
   readonly nonThumbCount: number;
   readonly thumbExtended: boolean;
-  readonly extended: Readonly<{ thumb: boolean; index: boolean; middle: boolean; ring: boolean; pinky: boolean }>;
+  readonly extended: Readonly<{
+    thumb: boolean;
+    index: boolean;
+    middle: boolean;
+    ring: boolean;
+    pinky: boolean;
+  }>;
 }
 
 function distanceSquared(a: Landmark, b: Landmark): number {
@@ -56,24 +62,33 @@ export function countExtendedFingers(
   }
 
   const ratioSquared = fingerExtensionRatio * fingerExtensionRatio;
-  const index = (landmarks[8] && landmarks[6])
-    ? distanceSquared(wrist, landmarks[8]) > distanceSquared(wrist, landmarks[6]) * ratioSquared
-    : false;
-  const middle = (landmarks[12] && landmarks[10])
-    ? distanceSquared(wrist, landmarks[12]) > distanceSquared(wrist, landmarks[10]) * ratioSquared
-    : false;
-  const ring = (landmarks[16] && landmarks[14])
-    ? distanceSquared(wrist, landmarks[16]) > distanceSquared(wrist, landmarks[14]) * ratioSquared
-    : false;
-  const pinky = (landmarks[20] && landmarks[18])
-    ? distanceSquared(wrist, landmarks[20]) > distanceSquared(wrist, landmarks[18]) * ratioSquared
-    : false;
+  const index =
+    landmarks[8] && landmarks[6]
+      ? distanceSquared(wrist, landmarks[8]) >
+        distanceSquared(wrist, landmarks[6]) * ratioSquared
+      : false;
+  const middle =
+    landmarks[12] && landmarks[10]
+      ? distanceSquared(wrist, landmarks[12]) >
+        distanceSquared(wrist, landmarks[10]) * ratioSquared
+      : false;
+  const ring =
+    landmarks[16] && landmarks[14]
+      ? distanceSquared(wrist, landmarks[16]) >
+        distanceSquared(wrist, landmarks[14]) * ratioSquared
+      : false;
+  const pinky =
+    landmarks[20] && landmarks[18]
+      ? distanceSquared(wrist, landmarks[20]) >
+        distanceSquared(wrist, landmarks[18]) * ratioSquared
+      : false;
   const thumbIp = landmarks[3];
   const thumbTip = landmarks[4];
-  const thumbExtended = thumbIp && thumbTip
-    ? distanceSquared(thumbTip, pinkyMcp) >
-      distanceSquared(thumbIp, pinkyMcp) * thumbExtensionRatio * thumbExtensionRatio
-    : false;
+  const thumbExtended =
+    thumbIp && thumbTip
+      ? distanceSquared(thumbTip, pinkyMcp) >
+        distanceSquared(thumbIp, pinkyMcp) * thumbExtensionRatio * thumbExtensionRatio
+      : false;
 
   return {
     valid: true,

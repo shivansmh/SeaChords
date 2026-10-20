@@ -50,18 +50,23 @@ export function assignHandRoles(
     if (firstX <= secondX) {
       left = first;
       right = second;
-      labelPositionMismatch = mapHandednessLabel(first.label, inputMirrored) === 'right'
-        || mapHandednessLabel(second.label, inputMirrored) === 'left';
+      labelPositionMismatch =
+        mapHandednessLabel(first.label, inputMirrored) === 'right' ||
+        mapHandednessLabel(second.label, inputMirrored) === 'left';
     } else {
       left = second;
       right = first;
-      labelPositionMismatch = mapHandednessLabel(second.label, inputMirrored) === 'right'
-        || mapHandednessLabel(first.label, inputMirrored) === 'left';
+      labelPositionMismatch =
+        mapHandednessLabel(second.label, inputMirrored) === 'right' ||
+        mapHandednessLabel(first.label, inputMirrored) === 'left';
     }
   } else if (hands.length === 1) {
     const hand = hands[0]!;
-    const role = mapHandednessLabel(hand.label, inputMirrored)
-      ?? (mirroredViewX(hand.landmarks[0]?.x ?? 0.5, inputMirrored) < 0.5 ? 'left' : 'right');
+    const role =
+      mapHandednessLabel(hand.label, inputMirrored) ??
+      (mirroredViewX(hand.landmarks[0]?.x ?? 0.5, inputMirrored) < 0.5
+        ? 'left'
+        : 'right');
     if (role === 'left') left = hand;
     else right = hand;
   }

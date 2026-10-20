@@ -24,10 +24,19 @@ export function classifyHand(
     options.minPalmSize ?? APP_CONFIG.gesture.minPalmSize,
   );
   const count = fingers.nonThumbCount;
-  const value = role === 'left'
-    ? count === 0 ? (fingers.thumbExtended ? 7 : 6)
-      : count === 4 && fingers.thumbExtended ? 5 : count
-    : count === 0 ? 0
-      : count === 4 && fingers.thumbExtended ? 5 : count;
+  const value =
+    role === 'left'
+      ? count === 0
+        ? fingers.thumbExtended
+          ? 7
+          : 6
+        : count === 4 && fingers.thumbExtended
+          ? 5
+          : count
+      : count === 0
+        ? 0
+        : count === 4 && fingers.thumbExtended
+          ? 5
+          : count;
   return { ...fingers, role, value };
 }

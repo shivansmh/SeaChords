@@ -35,5 +35,16 @@ export const APP_CONFIG = {
 } as const;
 
 export const PITCH_CLASS_NAMES = [
-  'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
 ] as const;

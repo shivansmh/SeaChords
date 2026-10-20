@@ -4,7 +4,12 @@ import type { Mode } from '../music/scales';
 import type { CommittedGestureState } from './debounce';
 
 export type ControllerAction =
-  | { readonly type: 'play'; readonly notes: number[]; readonly chord: ChordDefinition; readonly atMs: number }
+  | {
+      readonly type: 'play';
+      readonly notes: number[];
+      readonly chord: ChordDefinition;
+      readonly atMs: number;
+    }
   | { readonly type: 'stop'; readonly atMs: number }
   | { readonly type: 'panic'; readonly atMs: number };
 
@@ -73,7 +78,8 @@ export class SeaChordsController {
       return [this.playAction(atMs)];
     }
 
-    const chordChanged = state.degree !== previousDegree || state.richness !== previousRichness;
+    const chordChanged =
+      state.degree !== previousDegree || state.richness !== previousRichness;
     const octaveChanged = state.octaveZone !== previousZone && this.retriggerOnOctave;
     return chordChanged || octaveChanged ? [this.playAction(atMs)] : [];
   }

@@ -1,4 +1,9 @@
-import { getScaleOffsets, isPitchClassInScale, pitchClassToName, type Mode } from './scales';
+import {
+  getScaleOffsets,
+  isPitchClassInScale,
+  pitchClassToName,
+  type Mode,
+} from './scales';
 
 export interface ChordDefinition {
   degree: number;
@@ -79,7 +84,7 @@ export function constructChord(
   }
   const degreeZero = degree - 1;
   const scale = getScaleOffsets(mode);
-  const rootPc = ((tonic + scale[degreeZero]!) % 12 + 12) % 12;
+  const rootPc = (((tonic + scale[degreeZero]!) % 12) + 12) % 12;
   const rootName = pitchClassToName(rootPc);
   const base = {
     degree,
@@ -95,16 +100,26 @@ export function constructChord(
   const [third, fifth, seventh, ninth] = getDiatonicStackIntervals(degreeZero, mode);
 
   if (level === 1) {
-    return { ...base, relativeOffsets: [0, third, fifth], chordName: getTriadName(rootName, third, fifth) };
+    return {
+      ...base,
+      relativeOffsets: [0, third, fifth],
+      chordName: getTriadName(rootName, third, fifth),
+    };
   }
   if (level === 2) {
-    return { ...base, relativeOffsets: [0, third, fifth, seventh], chordName: getSeventhName(rootName, third, fifth, seventh) };
+    return {
+      ...base,
+      relativeOffsets: [0, third, fifth, seventh],
+      chordName: getSeventhName(rootName, third, fifth, seventh),
+    };
   }
   if (level === 3) {
     const avoid = ninth === 13;
     return {
       ...base,
-      relativeOffsets: avoid ? [0, third, fifth, seventh] : [0, third, fifth, seventh, ninth],
+      relativeOffsets: avoid
+        ? [0, third, fifth, seventh]
+        : [0, third, fifth, seventh, ninth],
       chordName: avoid
         ? getSeventhName(rootName, third, fifth, seventh)
         : getNinthName(rootName, third, fifth, seventh, ninth),
@@ -113,7 +128,10 @@ export function constructChord(
   }
   if (level === 4) {
     const fifthPc = (rootPc + fifth) % 12;
-    if (isPitchClassInScale(rootPc + 5, tonic, mode) && isPitchClassInScale(fifthPc, tonic, mode)) {
+    if (
+      isPitchClassInScale(rootPc + 5, tonic, mode) &&
+      isPitchClassInScale(fifthPc, tonic, mode)
+    ) {
       return {
         ...base,
         relativeOffsets: [0, 5, fifth],
@@ -121,7 +139,10 @@ export function constructChord(
         susType: 'sus4',
       };
     }
-    if (isPitchClassInScale(rootPc + 2, tonic, mode) && isPitchClassInScale(fifthPc, tonic, mode)) {
+    if (
+      isPitchClassInScale(rootPc + 2, tonic, mode) &&
+      isPitchClassInScale(fifthPc, tonic, mode)
+    ) {
       return {
         ...base,
         relativeOffsets: [0, 2, fifth],
@@ -129,7 +150,11 @@ export function constructChord(
         susType: 'sus2',
       };
     }
-    return { ...base, relativeOffsets: [0, third, fifth], chordName: getTriadName(rootName, third, fifth) };
+    return {
+      ...base,
+      relativeOffsets: [0, third, fifth],
+      chordName: getTriadName(rootName, third, fifth),
+    };
   }
 
   const avoid = ninth === 13;
@@ -137,7 +162,9 @@ export function constructChord(
   const ninthName = getNinthName(rootName, third, fifth, seventh, ninth);
   return {
     ...base,
-    relativeOffsets: avoid ? [0, third, fifth, seventh] : [0, third, fifth, seventh, ninth],
+    relativeOffsets: avoid
+      ? [0, third, fifth, seventh]
+      : [0, third, fifth, seventh, ninth],
     chordName: `${avoid ? seventhName : ninthName} (spread)`,
     isAvoidNoteFallback: avoid,
   };

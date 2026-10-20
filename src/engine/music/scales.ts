@@ -17,7 +17,18 @@ export const MODE_LABELS: Record<Mode, string> = {
 export const MODE_OPTIONS = Object.keys(MODE_LABELS) as Mode[];
 
 export const NOTE_NAMES = [
-  'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
+  'C',
+  'C#',
+  'D',
+  'D#',
+  'E',
+  'F',
+  'F#',
+  'G',
+  'G#',
+  'A',
+  'A#',
+  'B',
 ] as const;
 
 export function getScaleOffsets(mode: Mode): readonly number[] {

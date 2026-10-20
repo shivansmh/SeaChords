@@ -14,5 +14,9 @@ const runtimeFiles = [
 
 await rm(destination, { recursive: true, force: true });
 await mkdir(destination, { recursive: true });
-await Promise.all(runtimeFiles.map((file) => cp(path.join(source, file), path.join(destination, file))));
-console.log(`Self-hosted ${runtimeFiles.length} MediaPipe WASM assets at ${path.relative(projectRoot, destination)}`);
+await Promise.all(
+  runtimeFiles.map((file) => cp(path.join(source, file), path.join(destination, file))),
+);
+console.log(
+  `Self-hosted ${runtimeFiles.length} MediaPipe WASM assets at ${path.relative(projectRoot, destination)}`,
+);

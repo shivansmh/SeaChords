@@ -11,7 +11,10 @@ export class WebMidiOutput {
   private readonly activeNotes = new Set<number>();
 
   get supported(): boolean {
-    return typeof navigator !== 'undefined' && Boolean((navigator as MidiNavigator).requestMIDIAccess);
+    return (
+      typeof navigator !== 'undefined' &&
+      Boolean((navigator as MidiNavigator).requestMIDIAccess)
+    );
   }
 
   get connected(): boolean {

@@ -23,9 +23,14 @@ interface WorkerResultMessage extends TrackingResult {
   readonly type: 'result';
 }
 
-type WorkerResponse = WorkerReadyMessage
+type WorkerResponse =
+  | WorkerReadyMessage
   | WorkerResultMessage
-  | { readonly type: 'error'; readonly stage: 'initialization' | 'frame'; readonly message: string };
+  | {
+      readonly type: 'error';
+      readonly stage: 'initialization' | 'frame';
+      readonly message: string;
+    };
 
 function localVisionAssets(): { modelUrl: string; wasmRoot: string } {
   const base = typeof document === 'undefined' ? import.meta.url : document.baseURI;
@@ -35,7 +40,10 @@ function localVisionAssets(): { modelUrl: string; wasmRoot: string } {
   };
 }
 
-async function downloadModel(modelUrl: string, onProgress: (state: TrackerProgress) => void): Promise<Uint8Array> {
+async function downloadModel(
+  modelUrl: string,
+  onProgress: (state: TrackerProgress) => void,
+): Promise<Uint8Array> {
   onProgress({ progress: 0.06, message: 'Connecting to the local hand model…' });
   const response = await fetch(modelUrl);
   if (!response.ok) throw new Error(`Model request failed (${response.status}).`);
@@ -57,9 +65,10 @@ async function downloadModel(modelUrl: string, onProgress: (state: TrackerProgre
     const percent = total > 0 ? received / total : Math.min(0.85, received / 9_000_000);
     onProgress({
       progress: 0.06 + Math.min(percent, 1) * 0.42,
-      message: total > 0
-        ? `Loading hand model… ${Math.round(percent * 100)}%`
-        : 'Loading hand model…',
+      message:
+        total > 0
+          ? `Loading hand model… ${Math.round(percent * 100)}%`
+          : 'Loading hand model…',
     });
   }
   const model = new Uint8Array(received);
@@ -76,7 +85,10 @@ export class HandTrackerRuntime {
   private worker: Worker | null = null;
   private mainDetector: HandLandmarker | null = null;
   private model: Uint8Array | null = null;
-  private pendingReady: { resolve: (message: WorkerReadyMessage) => void; reject: (error: Error) => void } | null = null;
+  private pendingReady: {
+    resolve: (message: WorkerReadyMessage) => void;
+    reject: (error: Error) => void;
+  } | null = null;
   private initialized = false;
   private modelUrl = '';
   private wasmRoot = '';
@@ -84,7 +96,11 @@ export class HandTrackerRuntime {
   constructor(
     private readonly callbacks: {
       onProgress: (progress: TrackerProgress) => void;
-      onDelegate: (delegate: 'GPU' | 'CPU', worker: boolean, gpuFallback?: string) => void;
+      onDelegate: (
+        delegate: 'GPU' | 'CPU',
+        worker: boolean,
+        gpuFallback?: string,
+      ) => void;
       onResult: (result: TrackingResult) => void;
       onError: (message: string) => void;
     },
@@ -95,7 +111,10 @@ export class HandTrackerRuntime {
     this.modelUrl = assets.modelUrl;
     this.wasmRoot = assets.wasmRoot;
     this.model = await downloadModel(this.modelUrl, this.callbacks.onProgress);
-    this.callbacks.onProgress({ progress: 0.58, message: 'Preparing local vision runtime…' });
+    this.callbacks.onProgress({
+      progress: 0.58,
+      message: 'Preparing local vision runtime…',
+    });
 
     try {
       const delegate = await this.initializeWorker();
@@ -103,10 +122,16 @@ export class HandTrackerRuntime {
     } catch (workerError) {
       this.worker?.terminate();
       this.worker = null;
-      this.callbacks.onProgress({ progress: 0.68, message: 'Starting compatible CPU vision runtime…' });
+      this.callbacks.onProgress({
+        progress: 0.68,
+        message: 'Starting compatible CPU vision runtime…',
+      });
       const delegate = await this.initializeMainThread();
-      this.callbacks.onDelegate(delegate, false,
-        workerError instanceof Error ? workerError.message : String(workerError));
+      this.callbacks.onDelegate(
+        delegate,
+        false,
+        workerError instanceof Error ? workerError.message : String(workerError),
+      );
     }
     this.initialized = true;
     this.callbacks.onProgress({ progress: 1, message: 'Hand tracking ready.' });
@@ -133,9 +158,10 @@ export class HandTrackerRuntime {
       this.callbacks.onResult({
         hands: result.landmarks.map((landmarks, index) => {
           const categoryName = result.handedness[index]?.[0]?.categoryName;
-          const label: MediaPipeHandLabel = categoryName === 'Left' || categoryName === 'Right'
-            ? categoryName
-            : 'Unknown';
+          const label: MediaPipeHandLabel =
+            categoryName === 'Left' || categoryName === 'Right'
+              ? categoryName
+              : 'Unknown';
           const points: Landmark[] = landmarks.map(({ x, y, z }) => ({ x, y, z }));
           return { label, landmarks: points };
         }),
@@ -194,14 +220,17 @@ export class HandTrackerRuntime {
           }
         };
         const modelCopy = this.model!.slice().buffer;
-        worker.postMessage({
-          type: 'init',
-          wasmRoot: this.wasmRoot,
-          modelBuffer: modelCopy,
-          minDetectionConfidence: 0.6,
-          minHandPresenceConfidence: 0.6,
-          minTrackingConfidence: 0.6,
-        }, [modelCopy]);
+        worker.postMessage(
+          {
+            type: 'init',
+            wasmRoot: this.wasmRoot,
+            modelBuffer: modelCopy,
+            minDetectionConfidence: 0.6,
+            minHandPresenceConfidence: 0.6,
+            minTrackingConfidence: 0.6,
+          },
+          [modelCopy],
+        );
       } catch (error) {
         reject(error instanceof Error ? error : new Error(String(error)));
       }

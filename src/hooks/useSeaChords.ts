@@ -50,17 +50,38 @@ export function useSeaChords(): UseSeaChordsReturn {
   const panic = useCallback(() => engine.panic(), [engine]);
   const setKey = useCallback((tonic: number) => engine.setKey(tonic), [engine]);
   const setMode = useCallback((mode: Mode) => engine.setMode(mode), [engine]);
-  const setSynthPreset = useCallback((preset: SynthPreset) => engine.setSynthPreset(preset), [engine]);
+  const setSynthPreset = useCallback(
+    (preset: SynthPreset) => engine.setSynthPreset(preset),
+    [engine],
+  );
   const setVolume = useCallback((volume: number) => engine.setVolume(volume), [engine]);
   const setReverb = useCallback((reverb: number) => engine.setReverb(reverb), [engine]);
   const swapHands = useCallback(() => engine.swapHands(), [engine]);
-  const calibrate = useCallback((zoneHigh: number, zoneLow: number) => engine.calibrate(zoneHigh, zoneLow), [engine]);
-  const setKeyboardMode = useCallback((enabled: boolean) => engine.setKeyboardMode(enabled), [engine]);
-  const setKeyboardDegree = useCallback((degree: number) => engine.setKeyboardDegree(degree), [engine]);
-  const setKeyboardRichness = useCallback((richness: number) => engine.setKeyboardRichness(richness), [engine]);
-  const setMidiEnabled = useCallback((enabled: boolean) => engine.setMidiEnabled(enabled), [engine]);
+  const calibrate = useCallback(
+    (zoneHigh: number, zoneLow: number) => engine.calibrate(zoneHigh, zoneLow),
+    [engine],
+  );
+  const setKeyboardMode = useCallback(
+    (enabled: boolean) => engine.setKeyboardMode(enabled),
+    [engine],
+  );
+  const setKeyboardDegree = useCallback(
+    (degree: number) => engine.setKeyboardDegree(degree),
+    [engine],
+  );
+  const setKeyboardRichness = useCallback(
+    (richness: number) => engine.setKeyboardRichness(richness),
+    [engine],
+  );
+  const setMidiEnabled = useCallback(
+    (enabled: boolean) => engine.setMidiEnabled(enabled),
+    [engine],
+  );
   const startRecording = useCallback(() => engine.startRecording(), [engine]);
-  const stopRecording = useCallback((download = false) => engine.stopRecording(download), [engine]);
+  const stopRecording = useCallback(
+    (download = false) => engine.stopRecording(download),
+    [engine],
+  );
   const exportRecording = useCallback(() => engine.exportRecording(), [engine]);
 
   return {

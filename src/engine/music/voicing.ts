@@ -1,7 +1,11 @@
 import { getDiatonicStackIntervals, type ChordDefinition } from './chords';
 import { getScaleOffsets, type Mode } from './scales';
 
-export function clampChordToRange(notes: readonly number[], minMidi = 21, maxMidi = 108): number[] {
+export function clampChordToRange(
+  notes: readonly number[],
+  minMidi = 21,
+  maxMidi = 108,
+): number[] {
   if (notes.length === 0) return [];
   const result = [...notes];
   while (Math.min(...result) < minMidi) {
@@ -22,8 +26,15 @@ export function buildVoicedNotes(
 ): number[] {
   if (chord.level === 0 || chord.relativeOffsets.length === 0) return [];
   const scale = getScaleOffsets(mode);
-  const root = baseTonicMidi + ((tonic % 12) + 12) % 12 + scale[chord.degreeZero]! + octaveZone * 12;
-  const [third, fifth, seventh, ninth] = getDiatonicStackIntervals(chord.degreeZero, mode);
+  const root =
+    baseTonicMidi +
+    (((tonic % 12) + 12) % 12) +
+    scale[chord.degreeZero]! +
+    octaveZone * 12;
+  const [third, fifth, seventh, ninth] = getDiatonicStackIntervals(
+    chord.degreeZero,
+    mode,
+  );
   let notes: number[];
   if (chord.level === 5 || (chord.level === 3 && chord.isAvoidNoteFallback)) {
     notes = [root - 12, root, root + fifth, root + seventh, root + third + 12];

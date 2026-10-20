@@ -37,7 +37,13 @@ describe('time-based gesture debounce', () => {
 
   it('keeps the last hand state for the 300ms grace, then marks it absent', () => {
     const debouncer = new SeaChordsDebouncer();
-    const both = { degree: 1, wristY: 0.5, richness: 1, leftPresent: true, rightPresent: true };
+    const both = {
+      degree: 1,
+      wristY: 0.5,
+      richness: 1,
+      leftPresent: true,
+      rightPresent: true,
+    };
     expect(debouncer.update(both, 0).handsPresent).toBe(true);
     const missing = { ...both, leftPresent: false };
     expect(debouncer.update(missing, 300).handsPresent).toBe(true);

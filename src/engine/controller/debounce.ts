@@ -101,8 +101,10 @@ export class SeaChordsDebouncer {
   update(raw: RawGestureState, nowMs: number): CommittedGestureState {
     const both = raw.leftPresent && raw.rightPresent;
     if (both) this.lastBothHandsAt = nowMs;
-    const handsPresent = both || nowMs - this.lastBothHandsAt <= APP_CONFIG.debounce.handLostGraceMs;
-    const rawZone = raw.wristY === null ? this.octave.currentZone : this.octave.update(raw.wristY);
+    const handsPresent =
+      both || nowMs - this.lastBothHandsAt <= APP_CONFIG.debounce.handLostGraceMs;
+    const rawZone =
+      raw.wristY === null ? this.octave.currentZone : this.octave.update(raw.wristY);
     return {
       degree: this.degreeFilter.update(raw.degree, nowMs),
       octaveZone: this.octaveFilter.update(rawZone, nowMs),
